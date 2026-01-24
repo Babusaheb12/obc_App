@@ -1,18 +1,22 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
+    id("com.google.gms.google-services")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
-    namespace = "com.example.obc_app"
+    namespace = "com.company.obc"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        
+        // Enable core library desugaring for flutter_local_notifications
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -21,7 +25,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.obc_app"
+        applicationId = "com.company.obc"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -42,3 +46,20 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+
+    // 🔥 Firebase BoM (ADD THIS)
+    implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
+
+    // 🔥 Firebase Analytics (ADD THIS)
+    implementation("com.google.firebase:firebase-analytics")
+
+    // 🔥 Added to fix ClassNotFoundException: com.google.android.gms.auth.api.identity.GetSignInIntentRequest
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
+
+    // Core library desugaring (already present)
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+}
+

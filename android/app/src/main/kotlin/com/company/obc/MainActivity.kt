@@ -1,4 +1,4 @@
-package com.example.obc_app
+package com.company.obc
 
 import io.flutter.embedding.android.FlutterActivity
 

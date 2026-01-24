@@ -16,7 +16,7 @@ Future<String> getSafeFCMToken() async {
       // Wait a short moment for APNs token to be ready
       await Future.delayed(const Duration(seconds: 1));
       final token = await messaging.getToken();
-      print("✅ FCM Token: $token");
+      print("✅✅✅✅ FCM Token: $token");
       return token ?? "SIMULATOR_DEVICE_TOKEN"; // fallback for simulator
     } else {
       print("❌ Notification permission denied");
@@ -27,3 +27,14 @@ Future<String> getSafeFCMToken() async {
     return "SIMULATOR_DEVICE_TOKEN"; // fallback on error
   }
 }
+/// initialize in main.dart file is
+/*
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  // Get safe token
+  String token = await getSafeFCMToken();
+  print("🔥🔥🔥🔥 FINAL FCM TOKEN: $token");
+  runApp(const MyApp());
+}
+ */
