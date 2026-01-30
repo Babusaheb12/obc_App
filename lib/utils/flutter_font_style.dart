@@ -9,7 +9,14 @@ class FTextStyle {
     fontFamily: 'Nunito',
     fontSize: getResponsiveFontSize(context, 22),
     fontWeight: FontWeight.w700,
-    color: AppColors.white, // ✅ Always white
+    color: AppColors.white,
+  );
+
+  static TextStyle appbar(BuildContext context) => TextStyle(
+    fontFamily: 'DM Sans',
+    fontSize: getResponsiveFontSize(context, 20),
+    fontWeight: FontWeight.w700,
+    color: AppColors.white,
   );
 
   static TextStyle enterEmailAndPhone(BuildContext context) => TextStyle(

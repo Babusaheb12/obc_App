@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:obc_app/utils/flutter_color_themes.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
-import '../../utils/flutter_font_style.dart';
 import '../../widgets/Appbar/Appbar.dart';
+import '../productDetails/productDetails.dart';
 
 class MyDashboardScreenPage extends StatefulWidget {
    MyDashboardScreenPage({super.key});
@@ -29,36 +28,6 @@ class _MyDashboardScreenPageState extends State<MyDashboardScreenPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appThemes,
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   backgroundColor: AppColors.appThemes,
-      //   elevation: 0,
-      //   title: FittedBox(
-      //     fit: BoxFit.scaleDown,
-      //     child: Text(
-      //       "Obsessedbycar",
-      //       style: FTextStyle.sin(context)
-      //     ),
-      //   ),
-      //   actions: [
-      //     IconButton(
-      //       onPressed: () {},
-      //       icon: Icon(Icons.notifications_none, color: Colors.white),
-      //     ),
-      //     IconButton(
-      //       onPressed: () {},
-      //       icon: Icon(Icons.favorite_border, color: Colors.white),
-      //     ),
-      //     IconButton(
-      //       onPressed: () {},
-      //       icon: Icon(Icons.shopping_cart_outlined, color: Colors.white),
-      //     ),
-      //     IconButton(
-      //       onPressed: () {},
-      //       icon: Icon(Icons.person_outline, color: Colors.white),
-      //     ),
-      //   ],
-      // ),
       appBar: const CustomAppBar(),
       body: Column(
         children: [
@@ -362,61 +331,69 @@ class _MyDashboardScreenPageState extends State<MyDashboardScreenPage> {
     
     int currentQuantity = _productQuantities[index] ?? 0;
     
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade200),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Center(
-                  child: CachedNetworkImage(
-                    imageUrl: _productImages[index % _productImages.length],
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey.shade300,
-                      child: Icon(Icons.image, size: 50, color: Colors.grey.shade600),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey.shade300,
-                      child: Icon(Icons.image, size: 50, color: Colors.grey.shade600),
-                    ),
-                  ),
-                ),
-                Positioned(
-                    top: 8,
-                    right: 8,
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          if (_wishlistItems.contains(index)) {
-                            _wishlistItems.remove(index);
-                          } else {
-                            _wishlistItems.add(index);
-                          }
-                        });
-                      },
-                      child: Icon(
-                        _wishlistItems.contains(index) 
-                          ? Icons.favorite 
-                          : Icons.favorite_border,
-                        size: 20,
-                        color: _wishlistItems.contains(index) 
-                          ? Colors.red 
-                          : Colors.grey.shade600,
+    return GestureDetector(
+      onTap: () {
+        // Navigate to product details page with product ID
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyProductDetailsPage(productId: index)),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Center(
+                    child: CachedNetworkImage(
+                      imageUrl: _productImages[index % _productImages.length],
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey.shade300,
+                        child: Icon(Icons.image, size: 50, color: Colors.grey.shade600),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey.shade300,
+                        child: Icon(Icons.image, size: 50, color: Colors.grey.shade600),
                       ),
                     ),
-                ),
-              ],
+                  ),
+                  Positioned(
+                      top: 8,
+                      right: 8,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            if (_wishlistItems.contains(index)) {
+                              _wishlistItems.remove(index);
+                            } else {
+                              _wishlistItems.add(index);
+                            }
+                          });
+                        },
+                        child: Icon(
+                          _wishlistItems.contains(index) 
+                            ? Icons.favorite 
+                            : Icons.favorite_border,
+                          size: 20,
+                          color: _wishlistItems.contains(index) 
+                            ? Colors.red 
+                            : Colors.grey.shade600,
+                        ),
+                      ),
+                  ),
+                ],
+              ),
             ),
-          ),
           Padding(
             padding: const EdgeInsets.all(10),
             child: Column(
@@ -537,6 +514,7 @@ class _MyDashboardScreenPageState extends State<MyDashboardScreenPage> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

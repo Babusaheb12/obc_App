@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:obc_app/utils/flutter_color_themes.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../utils/flutter_font_style.dart';
+
 import '../../widgets/Appbar/Appbar.dart';
+import '../productDetails/productDetails.dart';
 
 class MyAccessoriesScreenPage extends StatefulWidget {
   MyAccessoriesScreenPage({super.key});
@@ -58,7 +59,7 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
       //     ),
       //   ],
       // ),
-      appBar: const CustomAppBar(),
+      appBar:  CustomAppBar(),
       body: Column(
         children: [
           // --- Search Bar Section ---
@@ -118,19 +119,19 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
 
     return Container(
       color: Colors.white, // 👈 yaha background color change karo
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding:  EdgeInsets.symmetric(vertical: 2),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
+        physics:  BouncingScrollPhysics(),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding:  EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: filters.map((title) {
               int index = filters.indexOf(title);
               bool isSelected = _selectedIndices.contains(index);
               
               return Padding(
-                padding: const EdgeInsets.only(right: 10),
+                padding:  EdgeInsets.only(right: 10),
                 child: GestureDetector(
                   onTap: () {
                     setState(() {
@@ -143,7 +144,7 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
                   },
                   child: Container(
                     padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                     EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: isSelected 
                           ? AppColors.appThemes // Selected color
@@ -201,7 +202,15 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
 
     int currentQuantity = _productQuantities[index] ?? 0;
 
-    return Container(
+    return GestureDetector(
+        onTap: () {
+          // Navigate to product details page with product ID
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MyProductDetailsPage(productId: index)),
+          );
+        },
+        child: Container(
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: Colors.grey.shade200),
@@ -265,13 +274,13 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding:  EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // OEM Label
                 Container(
-                  padding: const EdgeInsets.symmetric(
+                  padding:  EdgeInsets.symmetric(
                     horizontal: 6,
                     vertical: 2,
                   ),
@@ -279,7 +288,7 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
                     color: Colors.green.shade100,
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: const Text(
+                  child:  Text(
                     "OEM",
                     style: TextStyle(
                       color: Colors.green,
@@ -288,22 +297,22 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                const Text(
+                 SizedBox(height: 4),
+                 Text(
                   "Car Interior Dust Brush",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 4),
-                const Text(
+                 SizedBox(height: 4),
+                 Text(
                   "₹130/-",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
 
                 Row(
                   children: [
-                    const Text(
+                     Text(
                       "₹150/-",
                       style: TextStyle(
                         decoration: TextDecoration.lineThrough,
@@ -311,7 +320,7 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
                         fontSize: 10,
                       ),
                     ),
-                    const Spacer(),
+                     Spacer(),
 
                     // --- QUANTITY LOGIC START ---
                     currentQuantity == 0
@@ -322,7 +331,7 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
                               });
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
+                              padding:  EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 6,
                               ),
@@ -330,7 +339,7 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
                                 border: Border.all(color: Colors.red.shade100),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text(
+                              child:  Text(
                                 "Add",
                                 style: TextStyle(
                                   color: Colors.red,
@@ -358,15 +367,15 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
                                     });
                                   },
                                   child: Container(
-                                    padding: const EdgeInsets.all(4),
+                                    padding:  EdgeInsets.all(4),
                                     decoration: BoxDecoration(
                                       color: Colors.grey.shade200,
-                                      borderRadius: const BorderRadius.only(
+                                      borderRadius:  BorderRadius.only(
                                         topLeft: Radius.circular(5),
                                         bottomLeft: Radius.circular(5),
                                       ),
                                     ),
-                                    child: const Icon(
+                                    child:  Icon(
                                       Icons.remove,
                                       size: 16,
                                       color: Colors.black,
@@ -375,12 +384,12 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
                                 ),
                                 // Quantity Text
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
+                                  padding:  EdgeInsets.symmetric(
                                     horizontal: 8,
                                   ),
                                   child: Text(
                                     "$currentQuantity",
-                                    style: const TextStyle(
+                                    style:  TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
                                     ),
@@ -395,15 +404,15 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
                                     });
                                   },
                                   child: Container(
-                                    padding: const EdgeInsets.all(4),
+                                    padding:  EdgeInsets.all(4),
                                     decoration: BoxDecoration(
                                       color: Colors.red.shade50,
-                                      borderRadius: const BorderRadius.only(
+                                      borderRadius:  BorderRadius.only(
                                         topRight: Radius.circular(5),
                                         bottomRight: Radius.circular(5),
                                       ),
                                     ),
-                                    child: const Icon(
+                                    child:  Icon(
                                       Icons.add,
                                       size: 16,
                                       color: Colors.red,
@@ -421,6 +430,7 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
           ),
         ],
       ),
+        ),
     );
   }
 }

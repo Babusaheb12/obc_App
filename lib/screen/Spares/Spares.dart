@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../utils/flutter_color_themes.dart';
 import '../../widgets/Appbar/Appbar.dart';
+import '../searchCategory/SearchCategory.dart';
 
 class MySparesScreenPage extends StatefulWidget {
-  const MySparesScreenPage({super.key});
+   MySparesScreenPage({super.key});
 
   @override
   State<MySparesScreenPage> createState() => _MySparesScreenPageState();
@@ -18,19 +19,19 @@ class _MySparesScreenPageState extends State<MySparesScreenPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appThemes,
-      appBar: const CustomAppBar(),
+      appBar:  CustomAppBar(),
       body: Column(
         children: [
           /// 🔍 SEARCH BAR
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding:  EdgeInsets.symmetric(horizontal: 12),
             child: TextField(
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.white,
                 hintText: "Search Parts / Accessories / Brand / Part no.",
-                hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                hintStyle:  TextStyle(fontSize: 13, color: Colors.grey),
+                prefixIcon:  Icon(Icons.search, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -41,7 +42,7 @@ class _MySparesScreenPageState extends State<MySparesScreenPage> {
 
           /// 🎯 BANNER CAROUSEL
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding:  EdgeInsets.all(12.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(15),
               child: Stack(
@@ -53,9 +54,9 @@ class _MySparesScreenPageState extends State<MySparesScreenPage> {
                     options: CarouselOptions(
                       height: 180,
                       autoPlay: true,
-                      autoPlayInterval: const Duration(seconds: 3),
+                      autoPlayInterval:  Duration(seconds: 3),
                       autoPlayAnimationDuration:
-                      const Duration(milliseconds: 800),
+                       Duration(milliseconds: 800),
                       autoPlayCurve: Curves.fastOutSlowIn,
                       viewportFraction: 1.0,
                       onPageChanged: (index, reason) {
@@ -75,7 +76,7 @@ class _MySparesScreenPageState extends State<MySparesScreenPage> {
                         placeholder: (_, __) => Container(
                           color: Colors.grey.shade300,
                         ),
-                        errorWidget: (_, __, ___) => const Center(
+                        errorWidget: (_, __, ___) =>  Center(
                           child: Text("Banner Image"),
                         ),
                       );
@@ -89,8 +90,8 @@ class _MySparesScreenPageState extends State<MySparesScreenPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(3, (index) {
                         return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          duration:  Duration(milliseconds: 300),
+                          margin:  EdgeInsets.symmetric(horizontal: 4),
                           width: _currentIndex == index ? 10 : 8,
                           height: _currentIndex == index ? 10 : 8,
                           decoration: BoxDecoration(
@@ -113,20 +114,20 @@ class _MySparesScreenPageState extends State<MySparesScreenPage> {
           Expanded(
             child: Container(
               width: double.infinity,
-              decoration: const BoxDecoration(
+              decoration:  BoxDecoration(
                 color: Colors.white,
                 // borderRadius: BorderRadius.vertical(
                 //   top: Radius.circular(30),
                 // ),
               ),
               child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+                physics:  BouncingScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildSectionHeader("SEARCH BY CATEGORY"),
                     _buildCategoryGrid(),
-                    const SizedBox(height: 20),
+                     SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -140,10 +141,10 @@ class _MySparesScreenPageState extends State<MySparesScreenPage> {
   /// 🔠 SECTION TITLE
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+      padding:  EdgeInsets.fromLTRB(16, 20, 16, 12),
       child: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        style:  TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       ),
     );
   }
@@ -170,11 +171,11 @@ class _MySparesScreenPageState extends State<MySparesScreenPage> {
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding:  EdgeInsets.symmetric(horizontal: 12),
       child: GridView.builder(
         shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        physics:  NeverScrollableScrollPhysics(),
+        gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
           mainAxisSpacing: 12,
           crossAxisSpacing: 16,
@@ -182,22 +183,32 @@ class _MySparesScreenPageState extends State<MySparesScreenPage> {
         ),
         itemCount: categories.length,
         itemBuilder: (_, index) {
-          return Column(
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.grey.shade100,
-                child: const Icon(Icons.category),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                categories[index],
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 10),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MySearchCategoryScreen(),
+                ),
+              );
+            },
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.grey.shade100,
+                  child:  Icon(Icons.category),
+                ),
+                 SizedBox(height: 6),
+                Text(
+                  categories[index],
+                  textAlign: TextAlign.center,
+                  style:  TextStyle(fontSize: 10),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           );
         },
       ),
