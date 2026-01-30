@@ -1,181 +1,80 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:obc_app/utils/flutter_color_themes.dart';
-import '../../utils/constants.dart';
+import '../../utils/flutter_color_themes.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
-  final int accountBadgeCount;
-  final int messageBadgeCount;
 
   const BottomNavBar({
     super.key,
     required this.selectedIndex,
     required this.onItemTapped,
-    this.accountBadgeCount = 0,
-    this.messageBadgeCount = 0,
   });
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-
-    double horizontalPadding = 0;
-    double bottomPadding = 0;
-
-    if (kIsWeb) {
-      horizontalPadding = screenWidth * 0.3;
-    }
-
-    Widget _iconWithBadge(IconData icon, int count) {
-      return Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Icon(icon),
-          if (count > 0)
-            Positioned(
-              right: -6,
-              top: -2,
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                child: Center(
-                  child: Text(
-                    count.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
         ],
-      );
-    }
-
-    final navBar = BottomNavigationBar(
-      backgroundColor: AppColors.white,
-      items: <BottomNavigationBarItem>[
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.store),
-          label: Constants.home,
-        ),
-        BottomNavigationBarItem(
-          icon: _iconWithBadge(Icons.person, accountBadgeCount),
-          label: Constants.spares,
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.info),
-          label: Constants.accessories,
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.sell),
-          label: Constants.tyreAlloys,
-        ),
-        BottomNavigationBarItem(
-          icon: _iconWithBadge(Icons.message, messageBadgeCount),
-          label: Constants.preowned,
-        ),
-
-      ],
-      currentIndex: selectedIndex,
-      onTap: onItemTapped,
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: AppColors.white,  /// change the color
-      unselectedItemColor: AppColors.black,  //// change the color
-      selectedFontSize: 12,
-      unselectedFontSize: 12,
-      selectedLabelStyle: const TextStyle(
-        fontFamily: 'DM Sans',
-        fontWeight: FontWeight.w500,
-        fontSize: 12.03,
-        height: 22.39 / 11.03,
-        letterSpacing: 0,
       ),
-      unselectedLabelStyle: const TextStyle(
-        fontFamily: 'DM Sans',
-        fontWeight: FontWeight.w500,
-        fontSize: 12.03,
-      ),
-    );
-
-    // ✅ Wrap navBar in Container for web with background color
-    return kIsWeb
-        ? Container(
-      padding: EdgeInsets.fromLTRB(horizontalPadding, 8, horizontalPadding, 8),
-      color: Colors.white,
-      child: navBar,
-    )
-        : Container(
-      color: Colors.white, // ✅ Background color for mobile/tablet
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          horizontalPadding,
-          0,
-          horizontalPadding,
-          bottomPadding,
-        ),
-        child: navBar,
+      child: BottomNavigationBar(
+        backgroundColor: AppColors.white,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: selectedIndex,
+        onTap: onItemTapped,
+        elevation: 0,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        items: [
+          _buildBarItem(Icons.home_filled, "Home", 0),
+          _buildBarItem(Icons.settings_outlined, "Spares", 1),
+          _buildBarItem(Icons.minor_crash_outlined, "Accessories", 2),
+          _buildBarItem(Icons.adjust_outlined, "Tyre & All...", 3),
+          _buildBarItem(Icons.sell_outlined, "Preowned", 4),
+        ],
       ),
     );
   }
 
-
+  BottomNavigationBarItem _buildBarItem(IconData icon, String label, int index) {
+    bool isSelected = selectedIndex == index;
+    return BottomNavigationBarItem(
+      icon: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // The Pill Background behind the Icon
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.selectedPillColor : Colors.transparent,
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: Icon(
+              icon,
+              size: 26,
+              color: isSelected ? AppColors.selectedIconColor : AppColors.unselectedIconColor,
+            ),
+          ),
+          const SizedBox(height: 6),
+          // The Label
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: AppColors.textColor,
+            ),
+          ),
+        ],
+      ),
+      label: '',
+    );
+  }
 }
-// *********************************** class 2 ****************************************
-
-
-
-
-
-
-
-
-// Widget _buildNavItem(BuildContext context, IconData icon, String label, int index) {
-//   final isSelected = selectedIndex == index;
-//
-//   return GestureDetector(
-//     onTap: () => onItemTapped(index),
-//     behavior: HitTestBehavior.translucent, // Makes even empty area tappable
-//     child: Container(
-//       width: 110, // 👈 Increases horizontal tap area (adjust as needed)
-//       padding: const EdgeInsets.symmetric(vertical: 12),
-//       alignment: Alignment.center,
-//       child: Column(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Icon(
-//             icon,
-//             size: 26, // Slightly larger icon
-//             color: isSelected ? AppColors.selectedNavBar : AppColors.bottomNavBar,
-//           ),
-//           const SizedBox(height: 6),
-//           Text(
-//             label,
-//             textAlign: TextAlign.center,
-//             style: TextStyle(
-//               fontSize: 13,
-//               fontWeight: FontWeight.w500,
-//               color: isSelected ? AppColors.selectedNavBar : AppColors.bottomNavBar,
-//             ),
-//           ),
-//         ],
-//       ),
-//     ),
-//   );
-// }
-
-
-
-
-// }
-
-
-

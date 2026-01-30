@@ -625,7 +625,7 @@ class FTextStyle {
     } else {
       baseSize = SizeConfig.screenWidth;
     }
-    return baseSize * 0.0030 * size * textScale;
+    return baseSize * 0.0024 * size * textScale;
     // return size * textScale;
   }
 

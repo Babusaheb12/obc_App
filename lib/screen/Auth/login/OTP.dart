@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:obc_app/utils/constants.dart';
 import 'package:obc_app/utils/flutter_color_themes.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 
 import '../../../utils/ImageAssets.dart';
 import '../../../utils/flutter_font_style.dart';
+import '../../../widgets/BootomNavBar/homeScreen.dart';
 
 class MyOtpScreenPage extends StatefulWidget {
   final String mobileNumber;
@@ -15,32 +15,13 @@ class MyOtpScreenPage extends StatefulWidget {
   State<MyOtpScreenPage> createState() => _MyOtpScreenPageState();
 }
 
-class _MyOtpScreenPageState extends State<MyOtpScreenPage> with CodeAutoFill {
+class _MyOtpScreenPageState extends State<MyOtpScreenPage> {
   // Focus nodes to automatically move to the next box
   final List<FocusNode> _focusNodes = List.generate(4, (index) => FocusNode());
   final List<TextEditingController> _controllers = List.generate(4, (index) => TextEditingController());
 
   @override
-  void initState() {
-    super.initState();
-    listenForCode();
-  }
-
-  @override
-  void codeUpdated() {
-    // Auto-fill the OTP fields when code is detected
-    if (code != null && code!.length == 4) {
-      for (int i = 0; i < 4; i++) {
-        _controllers[i].text = code![i];
-      }
-      // Optionally, you can automatically verify the OTP here
-      // _verifyOtpAutomatically();
-    }
-  }
-
-  @override
   void dispose() {
-    cancel(); // Cancel SMS listener
     for (var node in _focusNodes) {
       node.dispose();
     }
@@ -103,27 +84,7 @@ class _MyOtpScreenPageState extends State<MyOtpScreenPage> with CodeAutoFill {
               ),
               child: Column(
                 children: [
-                  // OTP Input Boxes with Auto-fill hint
-                  PinFieldAutoFill(
-                    decoration: UnderlineDecoration(
-                      textStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      colorBuilder: FixedColorBuilder(Colors.black26),
-                    ),
-                    currentCode: code,
-                    onCodeChanged: (code) {
-                      if (code != null && code.length == 4) {
-                        // Fill the individual controllers
-                        for (int i = 0; i < 4; i++) {
-                          _controllers[i].text = code[i];
-                        }
-                      }
-                    },
-                    onCodeSubmitted: (code) {
-                      // Handle OTP submission
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  // Manual OTP Input Boxes (fallback)
+                  // OTP Input Boxes
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(4, (index) => _buildOtpBox(index)),
@@ -153,7 +114,17 @@ class _MyOtpScreenPageState extends State<MyOtpScreenPage> with CodeAutoFill {
                   // Verify Button
                   ElevatedButton(
                     onPressed: () {
-                      // Handle OTP Verification logic
+                      // 1️⃣ OTP collect kar lo (optional but best practice)
+                      final otp = _controllers.map((e) => e.text).join();
+                      print("Entered OTP: $otp");
+
+                      // 2️⃣ Navigation (OTP verified maan ke)
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MainScreen(),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF001233),

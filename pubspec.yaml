@@ -56,7 +56,7 @@ dependencies:
   loading_animations: ^2.1.0
   carousel_slider: ^5.1.1
   reorderables: ^0.4.2
-  sms_autofill: ^2.1.0
+  cached_network_image: ^3.3.1
 
 dev_dependencies:
   flutter_test:
