@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:obc_app/utils/constants.dart';
 import 'package:obc_app/utils/flutter_color_themes.dart';
@@ -19,7 +20,18 @@ class _MyOtpScreenPageState extends State<MyOtpScreenPage> {
   // Focus nodes to automatically move to the next box
   final List<FocusNode> _focusNodes = List.generate(4, (index) => FocusNode());
   final List<TextEditingController> _controllers = List.generate(4, (index) => TextEditingController());
+  
+  // Timer variables
+  int _start = 120;  // 2 minutes (120 seconds)
+  bool _isTimerActive = true;
+  late Timer _timer;
 
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+  
   @override
   void dispose() {
     for (var node in _focusNodes) {
@@ -28,13 +40,45 @@ class _MyOtpScreenPageState extends State<MyOtpScreenPage> {
     for (var controller in _controllers) {
       controller.dispose();
     }
+    _timer.cancel();
     super.dispose();
+  }
+  
+  // Timer method
+  void _startTimer() {
+    const oneSec = Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (_start == 0) {
+          setState(() {
+            _isTimerActive = false;
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            _start--;
+          });
+        }
+      },
+    );
+  }
+  
+  // Resend OTP method
+  void _resendOtp() {
+    setState(() {
+      _start = 120;  // Reset to 2 minutes
+      _isTimerActive = true;
+    });
+    _startTimer();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('OTP resent successfully to ${widget.mobileNumber}')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Matching the deep navy background from the image
       backgroundColor: AppColors.appThemes,
       body: SingleChildScrollView(
         child: Column(
@@ -45,7 +89,7 @@ class _MyOtpScreenPageState extends State<MyOtpScreenPage> {
               child: Column(
                 children: [
                   Image.asset(
-                    ImageAssets.appLogo, // Ensure this path is correct in your pubspec.yaml
+                    ImageAssets.appLogo, 
                     color: AppColors.white,
                     width: 150,
                     height: 150,
@@ -98,14 +142,28 @@ class _MyOtpScreenPageState extends State<MyOtpScreenPage> {
                         "Didn't receive OTP? ",
                         style: TextStyle(color: Colors.grey, fontSize: 14),
                       ),
-                      Text(
-                        "Resend OTP in 01:55",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
+                      if (_isTimerActive)
+                        Text(
+                          "Resend OTP in ${_formatTime(_start)}",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                          ),
+                        )
+                      else
+                        GestureDetector(
+                          onTap: _resendOtp,
+                          child: Text(
+                            "Resend OTP",
+                            style: TextStyle(
+                              color: Color(0xFF001233),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
                         ),
-                      ),
                     ],
                   ),
 
@@ -183,5 +241,12 @@ class _MyOtpScreenPageState extends State<MyOtpScreenPage> {
         },
       ),
     );
+  }
+  
+  // Format time method
+  String _formatTime(int seconds) {
+    int minutes = seconds ~/ 60;
+    int remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 }

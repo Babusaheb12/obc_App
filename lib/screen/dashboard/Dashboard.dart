@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:obc_app/utils/flutter_color_themes.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../widgets/Appbar/Appbar.dart';
 import '../productDetails/productDetails.dart';
+import 'Bloc/Slider/slider_bloc.dart';
+import 'Bloc/CarBrands/car_brands_bloc.dart';
 
 class MyDashboardScreenPage extends StatefulWidget {
    MyDashboardScreenPage({super.key});
@@ -26,129 +29,199 @@ class _MyDashboardScreenPageState extends State<MyDashboardScreenPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.appThemes,
-      appBar: const CustomAppBar(),
-      body: Column(
-        children: [
-          // --- Search Bar Section ---
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 0),
-            child: TextField(
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: AppColors.white,
-                hintText: "Search Parts / Accessories / Brand / Part no.",
-                hintStyle:  TextStyle(fontSize: 13, color: Colors.grey),
-                prefixIcon:  Icon(Icons.search, color: Colors.grey),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => SliderBloc()..add(FetchSliderEvent())),
+        BlocProvider(create: (context) => CarBrandsBloc()..add(FetchCarBrandsEvent())),
+      ],
+      child: Scaffold(
+        backgroundColor: AppColors.appThemes,
+        appBar: const CustomAppBar(),
+        body: Column(
+          children: [
+            // --- Search Bar Section ---
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 0),
+              child: TextField(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: AppColors.white,
+                  hintText: "Search Parts / Accessories / Brand / Part no.",
+                  hintStyle:  TextStyle(fontSize: 13, color: Colors.grey),
+                  prefixIcon:  Icon(Icons.search, color: Colors.grey),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding:  EdgeInsets.symmetric(vertical: 0),
                 ),
-                contentPadding:  EdgeInsets.symmetric(vertical: 0),
               ),
             ),
-          ),
-
-          // --- Hero Banner Carousel ---
-
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: CarouselSlider(
-                options: CarouselOptions(
-                  height: 180,
-                  autoPlay: true,
-                  autoPlayInterval: const Duration(seconds: 3),
-                  autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                  autoPlayCurve: Curves.fastOutSlowIn,
-                  enlargeCenterPage: false,
-                  viewportFraction: 1.0,
-                  scrollDirection: Axis.horizontal,
-                ),
-                items: [
-                  "https://images.pexels.com/photos/119435/pexels-photo-119435.jpeg",
-                  "https://images.pexels.com/photos/30889575/pexels-photo-30889575/free-photo-of-elegant-orange-sports-car-on-scenic-road.jpeg",
-                  "https://images.pexels.com/photos/120049/pexels-photo-120049.jpeg",
-                ].map<Widget>((item) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: CachedNetworkImage(
-                      imageUrl: item,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
+  
+            // --- Hero Banner Carousel ---
+            BlocBuilder<SliderBloc, SliderState>(
+              builder: (context, state) {
+                if (state is SliderLoading) {
+                  return Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Container(
                       height: 180,
-
-                      // ✅ SAME SIZE PLACEHOLDER (NO WHITE / NO JUMP)
-                      placeholder: (context, url) => Container(
-                        width: double.infinity,
-                        height: 180,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
                         color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(15),
                       ),
-
-                      errorWidget: (context, url, error) => Container(
-                        width: double.infinity,
-                        height: 180,
-                        color: Colors.grey.shade200,
-                        alignment: Alignment.center,
-                        child: const Text("Banner Image"),
+                      child: const Center(
+                        child: CircularProgressIndicator(),
                       ),
                     ),
                   );
-                }).toList(),
-              ),
+                } else if (state is SliderError) {
+                  return Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Container(
+                      height: 180,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Center(
+                        child: Text(state.message),
+                      ),
+                    ),
+                  );
+                } else if (state is SliderLoaded) {
+                  List<String> sliderImages = state.sliderImages;
+                  if (sliderImages.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Container(
+                        height: 180,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: const Center(
+                          child: Text("No slider images available"),
+                        ),
+                      ),
+                    );
+                  }
+                    
+                  return Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: CarouselSlider(
+                        options: CarouselOptions(
+                          height: 180,
+                          autoPlay: true,
+                          autoPlayInterval: const Duration(seconds: 3),
+                          autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                          autoPlayCurve: Curves.fastOutSlowIn,
+                          enlargeCenterPage: false,
+                          viewportFraction: 1.0,
+                          scrollDirection: Axis.horizontal,
+                        ),
+                        items: sliderImages.map<Widget>((item) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: CachedNetworkImage(
+                              imageUrl: item,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: 180,
+  
+                              // ✅ SAME SIZE PLACEHOLDER (NO WHITE / NO JUMP)
+                              placeholder: (context, url) => Container(
+                                width: double.infinity,
+                                height: 180,
+                                color: Colors.grey.shade300,
+                              ),
+  
+                              errorWidget: (context, url, error) => Container(
+                                width: double.infinity,
+                                height: 180,
+                                color: Colors.grey.shade200,
+                                alignment: Alignment.center,
+                                child: const Text("Banner Image"),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  );
+                } else {
+                  // Initial state - show loading or default images
+                  return Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Container(
+                      height: 180,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  );
+                }
+              },
             ),
-          ),
-
-
-
-          // --- Main Content Area (White Rounded Container) ---
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration:  BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
+  
+  
+            // --- Main Content Area (White Rounded Container) ---
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration:  BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                  ),
                 ),
-              ),
-              child: ClipRRect(
-                borderRadius:  BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-                child: SingleChildScrollView(
-                  physics:  BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                 
-
-                      // 1. Top Car Brands (Horizontal Scroll with 2 Rows)
-                      _buildSectionHeader("TOP CAR BRANDS"),
-                      _buildBrandScroll(),
-
-                      // 2. Promotional Banners (Filters & Spares)
-                      _buildPromoBanners(),
-
-                      // 3. Search By Category (Grid)
-                      _buildSectionHeader("SEARCH BY CATEGORY"),
-                      _buildCategoryGrid(),
-
-                      // 4. Product Listing (Car Accessories)
-                      _buildSectionHeader("CAR ACCESSORIES"),
-                      _buildProductGrid(),
-
-                       SizedBox(height: 20),
-                    ],
+                child: ClipRRect(
+                  borderRadius:  BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                  child: SingleChildScrollView(
+                    physics:  BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                      
+  
+                        // 1. Top Car Brands (Horizontal Scroll with 2 Rows)
+                        _buildSectionHeader("TOP CAR BRANDS"),
+                        _buildBrandScroll(),
+  
+                        // 2. Promotional Banners (Filters & Spares)
+                        _buildPromoBanners(),
+  
+                        // 3. Search By Category (Grid)
+                        _buildSectionHeader("SEARCH BY CATEGORY"),
+                        _buildCategoryGrid(),
+  
+                        // 4. Product Listing (Car Accessories)
+                        _buildSectionHeader("CAR ACCESSORIES"),
+                        _buildProductGrid(),
+  
+                         SizedBox(height: 20),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -167,92 +240,189 @@ class _MyDashboardScreenPageState extends State<MyDashboardScreenPage> {
   }
 
   Widget _buildBrandScroll() {
-    return SizedBox(
-      height: 200,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding:  EdgeInsets.symmetric(horizontal: 12),
-        children: [
-          _brandColumn(["Skoda", "Mahindra"]),
-          _brandColumn(["Toyota", "Hyundai"]),
-          _brandColumn(["Maruti Suzuki", "Tata"]),
-          _brandColumn(["Honda", "Kia"]),
-          _brandColumn(["Mercedes", "BMW"]),
-        ],
-      ),
+    return BlocBuilder<CarBrandsBloc, CarBrandsState>(
+      builder: (context, state) {
+        if (state is CarBrandsLoading) {
+          return SizedBox(
+            height: 200,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        } else if (state is CarBrandsError) {
+          return SizedBox(
+            height: 200,
+            child: Center(
+              child: Text(
+                state.message,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+          );
+        } else if (state is CarBrandsLoaded) {
+          List<CarBrand> brands = state.brands;
+          if (brands.isEmpty) {
+            return SizedBox(
+              height: 200,
+              child: Center(
+                child: Text(
+                  'No car brands available',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+            );
+          }
+          
+          // Group brands into pairs for the 2-row layout
+          List<List<CarBrand>> brandPairs = [];
+          for (int i = 0; i < brands.length; i += 2) {
+            int end = i + 2;
+            if (end <= brands.length) {
+              brandPairs.add(brands.sublist(i, end));
+            } else {
+              brandPairs.add(brands.sublist(i));
+            }
+          }
+          
+          return SizedBox(
+            height: 200,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              children: brandPairs.map((pair) => _brandColumnFromApi(pair)).toList(),
+            ),
+          );
+        } else {
+          // Initial state
+          return SizedBox(
+            height: 200,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+      },
     );
   }
-
-  Widget _brandColumn(List<String> labels) {
+  
+  Widget _brandColumnFromApi(List<CarBrand> brands) {
     return Padding(
-      padding:  EdgeInsets.symmetric(horizontal: 8),
+      padding: EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         children: [
-          _brandIcon(labels[0]),
-           SizedBox(height: 16),
-          _brandIcon(labels[1]),
+          if (brands.length > 0) _brandIconFromApi(brands[0]),
+          if (brands.length > 1) ...[
+            SizedBox(height: 16),
+            _brandIconFromApi(brands[1]),
+          ],
         ],
       ),
     );
   }
-
-  Widget _brandIcon(String label) {
+  
+  Widget _brandIconFromApi(CarBrand brand) {
     return SizedBox(
       width: 80,
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 32,
-            backgroundColor: Colors.grey.shade100,
-            child:  Icon(Icons.directions_car, color: Colors.black54), // Replace with NetworkImage/Assets
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.grey.shade100,
+            ),
+            child: ClipOval(
+              child: CachedNetworkImage(
+                imageUrl: brand.imageUrl,
+                fit: BoxFit.contain,
+                placeholder: (context, url) => Icon(
+                  Icons.directions_car,
+                  color: Colors.grey,
+                  size: 30,
+                ),
+                errorWidget: (context, url, error) => Icon(
+                  Icons.directions_car,
+                  color: Colors.grey,
+                  size: 30,
+                ),
+              ),
+            ),
           ),
-           SizedBox(height: 6),
-          Text(label, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style:  TextStyle(fontSize: 11)),
+          SizedBox(height: 6),
+          Text(
+            brand.name,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 11),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildPromoBanners() {
-    return Container(
-      height: 120, // Fixed height for the banner container
-      padding: EdgeInsets.symmetric(vertical: 10),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        itemCount: 3, // Number of banners
-        separatorBuilder: (context, index) => SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          // Different images for each banner
-          List<String> bannerImages = [
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYQGFdqOk8GWk_Ta54Y4UNVXkcAgXyIX8dkw&s',
-            'https://images.pexels.com/photos/190574/pexels-photo-190574.jpeg',
-            'https://images.pexels.com/photos/119435/pexels-photo-119435.jpeg',
-          ];
-          
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: CachedNetworkImage(
-              imageUrl: bannerImages[index],
-              width: 200, // Fixed width for each banner
-              height: 100,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                width: 200,
-                height: 100,
-                color: Colors.grey.shade300,
-                child: Icon(Icons.image, color: Colors.grey.shade500),
-              ),
-              errorWidget: (context, url, error) => Container(
-                width: 200,
-                height: 100,
-                color: Colors.grey.shade300,
-                child: Icon(Icons.error, color: Colors.red),
+    return BlocBuilder<SliderBloc, SliderState>(
+      builder: (context, state) {
+        List<String> offerImages = [];
+        
+        if (state is SliderLoaded) {
+          offerImages = state.offerImages;
+        }
+        
+        // If no offers available, return empty container
+        if (offerImages.isEmpty) {
+          return Container(
+            height: 120,
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Center(
+              child: Text(
+                'No offers available',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
               ),
             ),
           );
-        },
-      ),
+        }
+        
+        return Container(
+          height: 120, // Fixed height for the banner container
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            itemCount: offerImages.length,
+            separatorBuilder: (context, index) => SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: CachedNetworkImage(
+                  imageUrl: offerImages[index],
+                  width: 200, // Fixed width for each banner
+                  height: 100,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    width: 200,
+                    height: 100,
+                    color: Colors.grey.shade300,
+                    child: Icon(Icons.image, color: Colors.grey.shade500),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    width: 200,
+                    height: 100,
+                    color: Colors.grey.shade300,
+                    child: Icon(Icons.error, color: Colors.red),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

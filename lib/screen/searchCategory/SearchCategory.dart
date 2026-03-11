@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/Appbar/productDetailsAppbar.dart';
 
 class MySearchCategoryScreen extends StatefulWidget {
-  const MySearchCategoryScreen({super.key});
+   MySearchCategoryScreen({super.key});
 
   @override
   State<MySearchCategoryScreen> createState() => _MySearchCategoryScreenState();
@@ -61,11 +61,11 @@ class _MySearchCategoryScreenState extends State<MySearchCategoryScreen> {
                 return InkWell(
                   onTap: () => setState(() => _selectedSidebarIndex = index),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                    padding:  EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                     decoration: BoxDecoration(
                       color: isSelected ? Colors.red.shade50 : Colors.transparent,
                       border: isSelected
-                          ? const Border(left: BorderSide(color: Colors.red, width: 4))
+                          ?  Border(left: BorderSide(color: Colors.red, width: 4))
                           : null,
                     ),
                     child: Column(
@@ -75,7 +75,7 @@ class _MySearchCategoryScreenState extends State<MySearchCategoryScreen> {
                           backgroundColor: Colors.grey.shade100,
                           child: Icon(Icons.settings, color: isSelected ? Colors.red : Colors.grey),
                         ),
-                        const SizedBox(height: 8),
+                         SizedBox(height: 8),
                         Text(
                           _sidebarCategories[index],
                           textAlign: TextAlign.center,
@@ -96,8 +96,8 @@ class _MySearchCategoryScreenState extends State<MySearchCategoryScreen> {
           // --- Right Content Grid ---
           Expanded(
             child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              padding:  EdgeInsets.all(16),
+              gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 20,
@@ -109,7 +109,7 @@ class _MySearchCategoryScreenState extends State<MySearchCategoryScreen> {
                   children: [
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.all(8),
+                        padding:  EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.grey.shade50,
                           shape: BoxShape.circle,
@@ -120,10 +120,10 @@ class _MySearchCategoryScreenState extends State<MySearchCategoryScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                     SizedBox(height: 8),
                     Text(
                       _gridItems[index]['name']!,
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                      style:  TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
                       textAlign: TextAlign.center,
                     ),
                   ],
