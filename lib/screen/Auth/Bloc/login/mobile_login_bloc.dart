@@ -36,20 +36,15 @@ class MobileLoginBloc extends Bloc<MobileLoginEvent, MobileLoginState> {
       dev.log('Sending OTP request to: ${ApiUrls.mobileLogin}', name: 'MobileLoginBloc');
       dev.log('Request body: {"mobile": "$cleanMobile"} (10-digit format)', name: 'MobileLoginBloc');
 
-      // Use the confirmed working approach: POST with form data
+      // Use MultipartRequest for form-data as requested
       final url = Uri.parse(ApiUrls.mobileLogin);
-      final Map<String, String> headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      };
-      final String body = 'mobile=$cleanMobile';
+      final request = http.MultipartRequest('POST', url);
+      request.fields['mobile'] = cleanMobile;
       
-      dev.log('Sending POST with Form Data: $body', name: 'MobileLoginBloc');
+      dev.log('Sending POST with Multipart Form Data: mobile=$cleanMobile', name: 'MobileLoginBloc');
       
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: body,
-      );
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       dev.log(
         'Response Status: ${response.statusCode}',

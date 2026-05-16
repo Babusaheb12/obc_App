@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:obc_app/utils/flutter_color_themes.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../dashboard/Bloc/carAccessories/car_accessories_bloc.dart';
 
 import '../../widgets/Appbar/Appbar.dart';
 import '../productDetails/productDetails.dart';
+import 'AccessoriesDetails.dart';
 
 class MyAccessoriesScreenPage extends StatefulWidget {
   MyAccessoriesScreenPage({super.key});
@@ -17,98 +20,62 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
   Map<int, int> _productQuantities = {};
   Set<int> _wishlistItems = {};
 
-  // Sample product image URLs
-  final List<String> _productImages = [
-    "https://img.freepik.com/premium-photo/illustration-turbocharger_1195898-797.jpg",
-    "https://t4.ftcdn.net/jpg/01/27/89/83/360_F_127898316_hfyK1skqLfEQcz4sIolMDguRgqcFHcnp.jpg",
-    "https://tiimg.tistatic.com/fp/1/008/533/car-auto-parts-for-automobile-applications-use-817.jpg",
-    "https://images.pexels.com/photos/119435/pexels-photo-119435.jpeg",
-    "https://www.shutterstock.com/image-photo/automotive-parts-spark-plug-air-600nw-2160765299.jpg",
 
-    // fallback
-  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.appThemes,
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   backgroundColor: AppColors.appThemes,
-      //   elevation: 0,
-      //   title: FittedBox(
-      //     fit: BoxFit.scaleDown,
-      //     child: Text("Obsessedbycar", style: FTextStyle.sin(context)),
-      //   ),
-      //   actions: [
-      //     IconButton(
-      //       onPressed: () {},
-      //       icon: Icon(Icons.notifications_none, color: Colors.white),
-      //     ),
-      //     IconButton(
-      //       onPressed: () {},
-      //       icon: Icon(Icons.favorite_border, color: Colors.white),
-      //     ),
-      //     IconButton(
-      //       onPressed: () {},
-      //       icon: Icon(Icons.shopping_cart_outlined, color: Colors.white),
-      //     ),
-      //     IconButton(
-      //       onPressed: () {},
-      //       icon: Icon(Icons.person_outline, color: Colors.white),
-      //     ),
-      //   ],
-      // ),
-      appBar:  CustomAppBar(),
-      body: Column(
-        children: [
-          // --- Search Bar Section ---
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 0),
-            child: TextField(
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: AppColors.white,
-                hintText: "Search Parts / Accessories / Brand / Part no.",
-                hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
-                prefixIcon: Icon(Icons.search, color: Colors.grey),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
+    return BlocProvider(
+      create: (context) => CarAccessoriesBloc()..add(FetchCarAccessoriesEvent()),
+      child: Scaffold(
+        backgroundColor: AppColors.appThemes,
+        appBar:  const CustomAppBar(),
+        body: Column(
+          children: [
+            // --- Search Bar Section ---
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 0),
+              child: TextField(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: AppColors.white,
+                  hintText: "Search Parts / Accessories / Brand / Part no.",
+                  hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
+                  prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
                 ),
-                contentPadding: EdgeInsets.symmetric(vertical: 0),
               ),
             ),
-          ),
-          SizedBox(height: 5),
-          // --- Main Content Area (White Rounded Container) ---
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white),
-              child: ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-                child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 1. Top Car Brands (Horizontal Scroll with 2 Rows)
-                      _buildFilterBar(),
-
-                      _buildProductGrid(),
-
-                      SizedBox(height: 20),
-                    ],
+            const SizedBox(height: 5),
+            // --- Main Content Area (White Rounded Container) ---
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(color: Colors.white),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFilterBar(),
+                        _buildProductGrid(),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -178,23 +145,37 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
 
 
   Widget _buildProductGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.all(16),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 15,
-        mainAxisSpacing: 15,
-        childAspectRatio: 0.75,
-      ),
-      itemCount: 11,
-      itemBuilder: (context, index) => _productCard(index),
+    return BlocBuilder<CarAccessoriesBloc, CarAccessoriesState>(
+      builder: (context, state) {
+        if (state is CarAccessoriesLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is CarAccessoriesError) {
+          return Center(child: Text(state.message));
+        } else if (state is CarAccessoriesLoaded) {
+          final accessories = state.accessories; // SHOW ALL DATA
+          if (accessories.isEmpty) {
+            return const Center(child: Text('No accessories found'));
+          }
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 15,
+              mainAxisSpacing: 15,
+              childAspectRatio: 0.65, // Match dashboard aspect ratio
+            ),
+            itemCount: accessories.length,
+            itemBuilder: (context, index) => _productCard(accessories[index], index),
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 
-  // 2. Updated _productCard widget
-  Widget _productCard(int index) {
+  Widget _productCard(CarAccessory accessory, int index) {
     // Initialize quantity for this product if not already set
     if (!_productQuantities.containsKey(index)) {
       _productQuantities[index] = 0;
@@ -207,7 +188,11 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
           // Navigate to product details page with product ID
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => MyProductDetailsPage(productId: index)),
+            MaterialPageRoute(
+              builder: (context) => MyAccessoriesDetails(
+                productId: int.tryParse(accessory.id) ?? 0,
+              ),
+            ),
           );
         },
         child: Container(
@@ -224,7 +209,7 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
               children: [
                 Center(
                   child: CachedNetworkImage(
-                    imageUrl: _productImages[index % _productImages.length],
+                    imageUrl: accessory.image,
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
@@ -278,7 +263,7 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // OEM Label
+                // Origin Label
                 Container(
                   padding:  EdgeInsets.symmetric(
                     horizontal: 6,
@@ -289,7 +274,7 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child:  Text(
-                    "OEM",
+                    accessory.origin.isNotEmpty ? accessory.origin : "OEM",
                     style: TextStyle(
                       color: Colors.green,
                       fontSize: 10,
@@ -299,21 +284,28 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
                 ),
                  SizedBox(height: 4),
                  Text(
-                  "Car Interior Dust Brush",
+                  accessory.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
+                 SizedBox(height: 2),
+                 Text(
+                  accessory.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+                ),
                  SizedBox(height: 4),
                  Text(
-                  "₹130/-",
+                  "₹${accessory.sellingPrice}/-",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
 
                 Row(
                   children: [
                      Text(
-                      "₹150/-",
+                      "₹${accessory.price}/-",
                       style: TextStyle(
                         decoration: TextDecoration.lineThrough,
                         color: Colors.grey,
@@ -430,7 +422,7 @@ class _MyAccessoriesScreenPageState extends State<MyAccessoriesScreenPage> {
           ),
         ],
       ),
-        ),
+          ),
     );
   }
 }

@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:obc_app/screen/Auth/Bloc/verifyOtp/verify_otp_bloc.dart';
 
 import 'package:obc_app/screen/Auth/login/login.dart';
 import 'package:obc_app/utils/size_config.dart';
 import 'package:obc_app/screen/Auth/Bloc/login/mobile_login_bloc.dart';
+import 'package:obc_app/widgets/BootomNavBar/homeScreen.dart';
 import 'Api/FirebaseFCMService.dart';
 import 'Api/ConnectivityService.dart';
 
@@ -56,11 +58,13 @@ class _MyAppState extends State<MyApp> {
     return LayoutBuilder(
       builder: (context, constraints) {
         SizeConfig.init(context);
-
         return MultiBlocProvider(
           providers: [
             BlocProvider<MobileLoginBloc>(
               create: (_) => MobileLoginBloc(),
+            ),
+            BlocProvider<VerifyOtpBloc>(
+              create: (_) => VerifyOtpBloc(),
             ),
           ],
           child: MaterialApp(
@@ -73,7 +77,8 @@ class _MyAppState extends State<MyApp> {
               ),
               scaffoldBackgroundColor: const Color(0xFF00123C),
             ),
-            home: MyLoginPage(),
+            // home: MyLoginPage(),
+            home: MainScreen(),
           ),
         );
       },

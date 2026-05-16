@@ -45,6 +45,19 @@ class SliderBloc extends Bloc<SliderEvent, SliderState> {
         name: 'slider_api',
       );
 
+
+      // ✅ FULL RESPONSE SEPARATE
+      developer.log(
+        '''
+================ SLIDER API RESPONSE ================
+
+${response.body}
+
+=====================================================
+''',
+        name: 'slider_api',
+      );
+
       if (response.statusCode != 200) {
         emit(SliderError('Failed to load data. Status: ${response.statusCode}'));
         return;
@@ -91,7 +104,7 @@ class SliderBloc extends Bloc<SliderEvent, SliderState> {
     if (value is! List) return [];
     return value
         .whereType<Map<String, dynamic>>()
-        .map((e) => e['image']?.toString() ?? '')
+        .map((e) => "${ApiUrls.imageBaseUrl}${e['image']?.toString() ?? ''}")
         .where((url) => url.trim().isNotEmpty)
         .toList();
   }
@@ -101,7 +114,7 @@ class SliderBloc extends Bloc<SliderEvent, SliderState> {
     return items
         .whereType<Map<String, dynamic>>()
         .where((item) => item['type'] == desiredType)
-        .map((item) => item['image']?.toString() ?? '')
+        .map((item) => "${ApiUrls.imageBaseUrl}${item['image']?.toString() ?? ''}")
         .where((url) => url.trim().isNotEmpty)
         .toList();
   }

@@ -6,6 +6,9 @@ import '../../utils/flutter_color_themes.dart';
 import '../../widgets/Appbar/Appbar.dart';
 import '../searchCategory/SearchCategory.dart';
 import '../dashboard/Bloc/Slider/slider_bloc.dart';
+import 'bloc/getspares/getspares_bloc.dart';
+import 'model/category_model.dart';
+
 
 class MySparesScreenPage extends StatefulWidget {
    MySparesScreenPage({super.key});
@@ -19,8 +22,15 @@ class _MySparesScreenPageState extends State<MySparesScreenPage> {
   final CarouselSliderController _carouselController = CarouselSliderController();
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SliderBloc()..add(FetchSliderEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => SliderBloc()..add(FetchSliderEvent()),
+        ),
+        BlocProvider(
+          create: (context) => GetsparesBloc()..add(FetchCategoryEvent()),
+        ),
+      ],
       child: Scaffold(
         backgroundColor: AppColors.appThemes,
         appBar:  CustomAppBar(),
@@ -223,67 +233,64 @@ class _MySparesScreenPageState extends State<MySparesScreenPage> {
 
   /// 📊 CATEGORY GRID (NO SCROLL)
   Widget _buildCategoryGrid() {
-    final categories = [
-      "Maintenance",
-      "Belts",
-      "Body",
-      "Brake System",
-      "AC",
-      "Bearings",
-      "Cables",
-      "Accessories",
-      "Maintenance",
-      "Belts",
-      "Body",
-      "Brake System",
-      "AC",
-      "Bearings",
-      "Cables",
-      "Accessories",
-    ];
-
-    return Padding(
-      padding:  EdgeInsets.symmetric(horizontal: 12),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics:  NeverScrollableScrollPhysics(),
-        gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 16,
-          childAspectRatio: 0.8,
-        ),
-        itemCount: categories.length,
-        itemBuilder: (_, index) {
-          return InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MySearchCategoryScreen(),
-                ),
-              );
-            },
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.grey.shade100,
-                  child:  Icon(Icons.category),
-                ),
-                 SizedBox(height: 6),
-                Text(
-                  categories[index],
-                  textAlign: TextAlign.center,
-                  style:  TextStyle(fontSize: 10),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+    return BlocBuilder<GetsparesBloc, GetsparesState>(
+      builder: (context, state) {
+        if (state is CategoryLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is CategoryError) {
+          return Center(child: Text(state.message));
+        } else if (state is CategoryLoaded) {
+          final categories = state.categories;
+          if (categories.isEmpty) {
+            return const Center(child: Text("No categories available"));
+          }
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.7,
+              ),
+              itemCount: categories.length,
+              itemBuilder: (_, index) {
+                final CategoryModel category = categories[index];
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MySearchCategoryScreen(initialCategoryId: category.id),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.grey.shade100,
+                        backgroundImage: CachedNetworkImageProvider(category.image),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        category.name,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 10),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           );
-        },
-      ),
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 }

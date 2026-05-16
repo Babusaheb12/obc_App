@@ -7,6 +7,7 @@ import '../../../../Api/ConnectivityService.dart';
 import 'dart:developer' as developer;
 
 part 'car_brands_event.dart';
+
 part 'car_brands_state.dart';
 
 class CarBrandsBloc extends Bloc<CarBrandsEvent, CarBrandsState> {
@@ -20,7 +21,11 @@ class CarBrandsBloc extends Bloc<CarBrandsEvent, CarBrandsState> {
   ) async {
     final bool isConnected = await ConnectivityService.isConnected();
     if (!isConnected) {
-      emit(CarBrandsError('No internet connection. Please check your network and try again.'));
+      emit(
+        CarBrandsError(
+          'No internet connection. Please check your network and try again.',
+        ),
+      );
       return;
     }
 
@@ -48,8 +53,21 @@ class CarBrandsBloc extends Bloc<CarBrandsEvent, CarBrandsState> {
         name: 'car_brands_api',
       );
 
+      // ✅ SEPARATE RESPONSE LOG
+      developer.log('''
+================ CAR BRANDS API RESPONSE ================
+
+${response.body}
+
+=========================================================
+''', name: 'car_brands_api');
+
       if (response.statusCode != 200) {
-        emit(CarBrandsError('Failed to load car brands. Status: ${response.statusCode}'));
+        emit(
+          CarBrandsError(
+            'Failed to load car brands. Status: ${response.statusCode}',
+          ),
+        );
         return;
       }
 
@@ -57,7 +75,9 @@ class CarBrandsBloc extends Bloc<CarBrandsEvent, CarBrandsState> {
       final bool success = responseBody['success'] == true;
 
       if (!success) {
-        final message = responseBody['message']?.toString() ?? 'API returned unsuccessful response';
+        final message =
+            responseBody['message']?.toString() ??
+            'API returned unsuccessful response';
         emit(CarBrandsError(message));
         return;
       }
